@@ -1,17 +1,14 @@
 import MovieCard from '../MovieCard/MovieCard';
 import './MovieList.css';
 
-function MovieList() {
+function MovieList({ movies }) {
   return (
     <ul className="movie-list">
-      <li><MovieCard /></li>
-      <li><MovieCard /></li>
-      <li><MovieCard /></li>
-      <li><MovieCard /></li>
-      <li><MovieCard /></li>
-      <li><MovieCard /></li>
-      <li><MovieCard /></li>
-      <li><MovieCard /></li>
+      {movies.map((movie) => (
+        <li key={movie.imdbID}>
+          <MovieCard movie={movie} />
+        </li>
+      ))}
     </ul>
   );
 }
