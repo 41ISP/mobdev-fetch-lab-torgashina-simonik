@@ -11,57 +11,52 @@ function HomePage() {
   const queryParam = searchParams.get('q') || '';
 
   const [query, setQuery] = useState(queryParam);
-  const [movies, setMovies] = useState(null);
+  const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSearch = () => {
-    if (query.trim()) {
-      setSearchParams({ q: query });
+  const loadMovies = async (text) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const res = await fetch(
+        `https://www.omdbapi.com/?apikey=${import.meta.env.VITE_OMDB_API_KEY}&s=${encodeURIComponent(text)}`
+      );
+      const data = await res.json();
+
+      if (data.Response === 'False') {
+        setError(data.Error);
+      } else {
+        setMovies(data.Search);
+      }
+    } catch (err) {
+      setError('Ошибка соединения');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!queryParam) return;
-
-    const loadMovies = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const res = await fetch(
-          `https://www.omdbapi.com/?apikey=${import.meta.env.VITE_OMDB_API_KEY}&s=${queryParam}`
-        );
-        const data = await res.json();
-
-        if (data.Response === 'False') {
-          setError(data.Error);
-          setMovies(null);
-        } else {
-          setMovies(data.Search);
-        }
-      } catch (err) {
-        setError('Ошибка соединения');
-        setMovies(null);
-      }
-
-      setIsLoading(false);
-    };
-
-    loadMovies();
+    if (queryParam) {
+      loadMovies(queryParam);
+    }
   }, [queryParam]);
+
+  const handleSubmit = () => {
+    setSearchParams({ q: query });
+  };
 
   return (
     <main className="home-page">
       <div className="container home-page__inner">
-        <SearchBar query={query} setQuery={setQuery} onSearch={handleSearch} />
+        <SearchBar query={query} onQueryChange={setQuery} onSubmit={handleSubmit} />
 
         <section className="home-page__section">
           <h2 className="home-page__section-title">Результат поиска</h2>
-
           {isLoading && <Loader />}
-          {error && <ErrorMessage message={error} />}
-          {!isLoading && !error && movies && <MovieList movies={movies} />}
+          {!isLoading && error && <ErrorMessage message={error} />}
+          {!isLoading && !error && <MovieList movies={movies} />}
         </section>
       </div>
     </main>

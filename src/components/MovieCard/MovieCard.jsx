@@ -6,7 +6,9 @@ function MovieCard({ movie }) {
   return (
     <article className="movie-card">
       <Link to={`/movie/${movie.imdbID}`} className="movie-card__poster-button">
-        <div className="movie-card__poster">{movie.Title}</div>
+        <div className="movie-card__poster">
+          <img src={movie.Poster} alt={movie.Title} />
+        </div>
         <span className="movie-card__type">{movie.Type}</span>
       </Link>
 
